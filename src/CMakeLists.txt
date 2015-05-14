@@ -109,6 +109,7 @@ set(keepassx_SOURCES
     gui/SettingsWidget.cpp
     gui/SortFilterHideProxyModel.cpp
     gui/UnlockDatabaseWidget.cpp
+    gui/UnlockDatabaseDialog.cpp
     gui/WelcomeWidget.cpp
     gui/entry/AutoTypeAssociationsModel.cpp
     gui/entry/EditEntryWidget.cpp
@@ -202,6 +203,7 @@ set(keepassx_MOC
     gui/SettingsWidget.h
     gui/SortFilterHideProxyModel.h
     gui/UnlockDatabaseWidget.h
+    gui/UnlockDatabaseDialog.h
     gui/WelcomeWidget.h
     gui/entry/AutoTypeAssociationsModel.h
     gui/entry/EditEntryWidget.h
