@@ -180,6 +180,11 @@
          <string>Twofish:  256 Bit</string>
         </property>
        </item>
+       <item>
+        <property name="text">
+         <string>Serpent:  256 Bit</string>
+        </property>
+       </item>
       </widget>
      </item>
     </layout>

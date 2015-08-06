@@ -49,6 +49,9 @@ int SymmetricCipherGcrypt::gcryptAlgo(SymmetricCipher::Algorithm algo)
         return GCRY_CIPHER_SALSA20;
 #endif
 
+    case SymmetricCipher::Serpent256:
+        return GCRY_CIPHER_SERPENT256;
+
     default:
         Q_ASSERT(false);
         return -1;
