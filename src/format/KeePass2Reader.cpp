@@ -330,7 +330,9 @@ void KeePass2Reader::setCipher(const QByteArray& data)
     else {
         Uuid uuid(data);
 
-        if (uuid != KeePass2::CIPHER_AES && uuid != KeePass2::CIPHER_TWOFISH) {
+        if (uuid != KeePass2::CIPHER_AES &&
+            uuid != KeePass2::CIPHER_TWOFISH &&
+            uuid != KeePass2::CIPHER_SERPENT) {
             raiseError("Unsupported cipher");
         }
         else {

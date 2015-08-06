@@ -138,6 +138,11 @@ bool Crypto::checkAlgorithms()
         return false;
     }
 #endif
+    if (gcry_cipher_algo_info(GCRY_CIPHER_SERPENT256, GCRYCTL_TEST_ALGO, Q_NULLPTR, Q_NULLPTR) != 0) {
+        m_errorStr = "GCRY_CIPHER_SERPENT256 not found.";
+        qWarning("Crypto::checkAlgorithms: %s", qPrintable(m_errorStr));
+        return false;
+    }
     if (gcry_md_test_algo(GCRY_MD_SHA256) != 0) {
         m_errorStr = "GCRY_MD_SHA256 not found.";
         qWarning("Crypto::checkAlgorithms: %s", qPrintable(m_errorStr));
@@ -149,7 +154,7 @@ bool Crypto::checkAlgorithms()
 
 bool Crypto::selfTest()
 {
-    return testSha256() && testAes256Cbc() && testAes256Ecb() && testTwofish() && testSalsa20();
+    return testSha256() && testAes256Cbc() && testAes256Ecb() && testTwofish() && testSalsa20() && testSerpent256();
 }
 
 void Crypto::raiseError(const QString& str)
@@ -323,6 +328,50 @@ bool Crypto::testSalsa20()
     }
     if (salsaProcessed != salsa20Cipher) {
         raiseError("Salsa20 stream cipher mismatch.");
+        return false;
+    }
+
+    return true;
+}
+
+bool Crypto::testSerpent256()
+{
+    QByteArray key = QByteArray::fromHex("603deb1015ca71be2b73aef0857d77811f352c073b6108d72d9810a30914dff4");
+    QByteArray iv = QByteArray::fromHex("000102030405060708090a0b0c0d0e0f");
+    QByteArray plainText = QByteArray::fromHex("6bc1bee22e409f96e93d7e117393172a");
+    plainText.append(QByteArray::fromHex("ae2d8a571e03ac9c9eb76fac45af8e51"));
+    QByteArray cipherText = QByteArray::fromHex("b893c8dec5c85f0301ac3274dfc6719d");
+    cipherText.append(QByteArray::fromHex("3761c5f8344de91091d3878042cc7095"));
+    bool ok;
+
+    SymmetricCipher serpent256Encrypt(SymmetricCipher::Serpent256, SymmetricCipher::Cbc, SymmetricCipher::Encrypt);
+    if (!serpent256Encrypt.init(key, iv)) {
+        raiseError(serpent256Encrypt.errorString());
+        return false;
+    }
+    QByteArray encryptedText = serpent256Encrypt.process(plainText, &ok);
+    if (!ok) {
+        raiseError(serpent256Encrypt.errorString());
+        return false;
+    }
+    if (encryptedText != cipherText) {
+        raiseError("Serpent256 encryption mismatch.");
+        return false;
+    }
+
+
+    SymmetricCipher serpent256Decrypt(SymmetricCipher::Serpent256, SymmetricCipher::Cbc, SymmetricCipher::Decrypt);
+    if (!serpent256Decrypt.init(key, iv)) {
+        raiseError(serpent256Encrypt.errorString());
+        return false;
+    }
+    QByteArray decryptedText = serpent256Decrypt.process(cipherText, &ok);
+    if (!ok) {
+        raiseError(serpent256Decrypt.errorString());
+        return false;
+    }
+    if (decryptedText != plainText) {
+        raiseError("Serpent256 encryption mismatch.");
         return false;
     }
 

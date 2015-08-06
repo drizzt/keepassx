@@ -64,6 +64,7 @@ SymmetricCipherBackend* SymmetricCipher::createBackend(SymmetricCipher::Algorith
 #if defined(GCRYPT_HAS_SALSA20)
     case SymmetricCipher::Salsa20:
 #endif
+    case SymmetricCipher::Serpent256:
         return new SymmetricCipherGcrypt(algo, mode, direction);
 
 #if !defined(GCRYPT_HAS_SALSA20)
@@ -96,9 +97,11 @@ SymmetricCipher::Algorithm SymmetricCipher::cipherToAlgorithm(Uuid cipher)
 {
     if (cipher == KeePass2::CIPHER_AES) {
         return SymmetricCipher::Aes256;
+    } if (cipher == KeePass2::CIPHER_TWOFISH) {
+        return SymmetricCipher::Twofish;
     }
     else {
-        return SymmetricCipher::Twofish;
+        return SymmetricCipher::Serpent256;
     }
 }
 
@@ -107,7 +110,9 @@ Uuid SymmetricCipher::algorithmToCipher(SymmetricCipher::Algorithm algo)
     switch (algo) {
     case SymmetricCipher::Aes256:
         return KeePass2::CIPHER_AES;
-    default:
+    case SymmetricCipher::Twofish:
         return KeePass2::CIPHER_TWOFISH;
+    default:
+        return KeePass2::CIPHER_SERPENT;
     }
 }

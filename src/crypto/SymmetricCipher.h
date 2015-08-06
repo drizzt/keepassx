@@ -33,6 +33,7 @@ public:
     {
         Aes256,
         Twofish,
+        Serpent256,
         Salsa20
     };
 
