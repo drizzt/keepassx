@@ -146,8 +146,12 @@ if(WITH_TESTS)
   enable_testing()
 endif(WITH_TESTS)
 
-set(QT_REQUIRED_MODULES QtCore QtGui QtTest)
+find_package(PkgConfig)
+pkg_check_modules(QT4 REQUIRED QtCore QtGui)
+include_directories(${QT4_INCLUDE_DIRS})
+link_directories(${QT4_LIBRARY_DIRS})
 
+set(QT_REQUIRED_MODULES QtTest)
 find_package(Qt4 4.6.0 REQUIRED ${QT_REQUIRED_MODULES})
 include(${QT_USE_FILE})
 # Debian sets the the build type to None for package builds.

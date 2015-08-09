@@ -1,31 +1,52 @@
-#  Copyright (C) 2011 Felix Geyer <debfx@fobos.de>
+
+# - Try to find the Gcrypt library
+# Once run this will define
 #
-#  This program is free software: you can redistribute it and/or modify
-#  it under the terms of the GNU General Public License as published by
-#  the Free Software Foundation, either version 2 or (at your option)
-#  version 3 of the License.
+#  GCRYPT_FOUND - set if the system has the gcrypt library
+#  GCRYPT_CFLAGS - the required gcrypt compilation flags
+#  GCRYPT_LIBRARIES - the linker libraries needed to use the gcrypt library
 #
-#  This program is distributed in the hope that it will be useful,
-#  but WITHOUT ANY WARRANTY; without even the implied warranty of
-#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#  GNU General Public License for more details.
+# Copyright (c) 2006 Brad Hards <bradh@kde.org>
 #
-#  You should have received a copy of the GNU General Public License
-#  along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# Redistribution and use is allowed according to the terms of the BSD license.
+# For details see the accompanying COPYING-CMAKE-SCRIPTS file.
 
-find_path(GCRYPT_INCLUDE_DIR gcrypt.h)
+# libgcrypt is moving to pkg-config, but earlier version don't have it
 
-find_library(GCRYPT_LIBRARIES gcrypt)
+#search in typical paths for libgcrypt-config
+FIND_PROGRAM(GCRYPTCONFIG_EXECUTABLE NAMES libgcrypt-config)
 
-mark_as_advanced(GCRYPT_LIBRARIES GCRYPT_INCLUDE_DIR)
+#reset variables
+set(GCRYPT_LIBRARIES)
+set(GCRYPT_CFLAGS)
 
-if(GCRYPT_INCLUDE_DIR AND EXISTS "${GCRYPT_INCLUDE_DIR}/gcrypt.h")
-    file(STRINGS "${GCRYPT_INCLUDE_DIR}/gcrypt.h" GCRYPT_H REGEX "^#define GCRYPT_VERSION \"[^\"]*\"$")
-    string(REGEX REPLACE "^.*GCRYPT_VERSION \"([0-9]+).*$" "\\1" GCRYPT_VERSION_MAJOR "${GCRYPT_H}")
-    string(REGEX REPLACE "^.*GCRYPT_VERSION \"[0-9]+\\.([0-9]+).*$" "\\1" GCRYPT_VERSION_MINOR  "${GCRYPT_H}")
-    string(REGEX REPLACE "^.*GCRYPT_VERSION \"[0-9]+\\.[0-9]+\\.([0-9]+).*$" "\\1" GCRYPT_VERSION_PATCH "${GCRYPT_H}")
-    set(GCRYPT_VERSION_STRING "${GCRYPT_VERSION_MAJOR}.${GCRYPT_VERSION_MINOR}.${GCRYPT_VERSION_PATCH}")
-endif()
+# if libgcrypt-config has been found
+IF(GCRYPTCONFIG_EXECUTABLE)
 
-include(FindPackageHandleStandardArgs)
-find_package_handle_standard_args(Gcrypt DEFAULT_MSG GCRYPT_LIBRARIES GCRYPT_INCLUDE_DIR)
+  # workaround for MinGW/MSYS
+  # CMake can't starts shell scripts on windows so it need to use sh.exe
+  EXECUTE_PROCESS(COMMAND sh ${GCRYPTCONFIG_EXECUTABLE} --libs RESULT_VARIABLE _return_VALUE OUTPUT_VARIABLE GCRYPT_LIBRARIES OUTPUT_STRIP_TRAILING_WHITESPACE)
+  EXECUTE_PROCESS(COMMAND sh ${GCRYPTCONFIG_EXECUTABLE} --cflags RESULT_VARIABLE _return_VALUE OUTPUT_VARIABLE GCRYPT_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
+  EXECUTE_PROCESS(COMMAND sh ${GCRYPTCONFIG_EXECUTABLE} --version RESULT_VARIABLE _return_VALUE OUTPUT_VARIABLE GCRYPT_VERSION_STRING)
+
+  IF(NOT GCRYPT_CFLAGS AND NOT _return_VALUE)
+    SET(GCRYPT_CFLAGS " ")
+  ENDIF(NOT GCRYPT_CFLAGS AND NOT _return_VALUE)
+
+  IF(GCRYPT_LIBRARIES AND GCRYPT_CFLAGS)
+    SET(GCRYPT_FOUND TRUE)
+  ENDIF(GCRYPT_LIBRARIES AND GCRYPT_CFLAGS)
+
+ENDIF(GCRYPTCONFIG_EXECUTABLE)
+
+if (GCRYPT_FOUND)
+   if (NOT LibGcrypt_FIND_QUIETLY)
+      message(STATUS "Found libgcrypt: ${GCRYPT_LIBRARIES}")
+   endif (NOT LibGcrypt_FIND_QUIETLY)
+else (GCRYPT_FOUND)
+   if (LibGcrypt_FIND_REQUIRED)
+      message(FATAL_ERROR "Could not find libgcrypt libraries")
+   endif (LibGcrypt_FIND_REQUIRED)
+endif (GCRYPT_FOUND)
+
+MARK_AS_ADVANCED(GCRYPT_CFLAGS GCRYPT_LIBRARIES GCRYPT_VERSION_STRING)
