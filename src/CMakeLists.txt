@@ -253,6 +253,15 @@ endif()
 qt4_wrap_ui(keepassx_SOURCES ${keepassx_FORMS})
 qt4_wrap_cpp(keepassx_SOURCES ${keepassx_MOC})
 
+if(WITH_EMBED_RESOURCES)
+  qt4_add_resources(keepassx_SOURCES ${CMAKE_BINARY_DIR}/share/keepassx.qrc)
+  # HACK
+  file(APPEND ${CMAKE_BINARY_DIR}/share/translations/qrc_translations.cxx)
+  set(keepassx_SOURCES_MAINEXE
+    ${keepassx_SOURCES_MAINEXE}
+    ${CMAKE_BINARY_DIR}/share/translations/qrc_translations.cxx)
+endif(WITH_EMBED_RESOURCES)
+
 add_library(keepassx_core STATIC ${keepassx_SOURCES})
 set_target_properties(keepassx_core PROPERTIES COMPILE_DEFINITIONS KEEPASSX_BUILDING_CORE)
 

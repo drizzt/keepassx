@@ -32,6 +32,7 @@ include(CheckCXXSourceCompiles)
 option(WITH_TESTS "Enable building of unit tests" ON)
 option(WITH_GUI_TESTS "Enable building of GUI tests" OFF)
 option(WITH_CXX11 "Build with the C++ 11 standard" ON)
+option(WITH_EMBED_RESOURCES "Build with embed resources (icons and translations)" OFF)
 
 set(KEEPASSX_VERSION "2.0.2")
 set(KEEPASSX_VERSION_NUM "2.0.2")
@@ -108,6 +109,10 @@ if (WITH_CXX11)
   endif()
 else()
   add_gcc_compiler_flags("-ansi")
+endif()
+
+if(WITH_EMBED_RESOURCES)
+  add_gcc_compiler_flags("-DEMBED_RESOURCES")
 endif()
 
 if(MINGW)

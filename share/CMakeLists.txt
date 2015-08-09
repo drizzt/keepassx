@@ -19,6 +19,18 @@ file(GLOB DATABASE_ICONS icons/database/*.png)
 
 install(FILES ${DATABASE_ICONS} DESTINATION ${DATA_INSTALL_DIR}/icons/database)
 
+if(WITH_EMBED_RESOURCES)
+    # Create QRC file - keepassx.qrc
+    file(GLOB ICON_FILES RELATIVE ${CMAKE_CURRENT_SOURCE_DIR} icons/application/*/actions/*.png
+         icons/application/*/status/*.png icons/database/*.png icons/application/128x128/apps/keepassx*.png)
+    set(KEEPASSX_QRC "${CMAKE_CURRENT_BINARY_DIR}/keepassx.qrc")
+    file(WRITE ${KEEPASSX_QRC} "<RCC>\n\t<qresource>")
+    foreach(ICON_FILE ${ICON_FILES})
+        file(APPEND ${KEEPASSX_QRC} "\n\t\t<file alias=\"${ICON_FILE}\">${CMAKE_CURRENT_SOURCE_DIR}/${ICON_FILE}</file>")
+    endforeach()
+    file(APPEND ${KEEPASSX_QRC} "\n\t</qresource>\n</RCC>")
+endif(WITH_EMBED_RESOURCES)
+
 if(UNIX AND NOT APPLE)
     install(DIRECTORY icons/application/ DESTINATION ${CMAKE_INSTALL_DATADIR}/icons/hicolor
             FILES_MATCHING PATTERN "keepassx*.png" PATTERN "keepassx*.svgz")

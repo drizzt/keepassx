@@ -21,6 +21,29 @@ message(STATUS ${TRANSLATION_FILES})
 
 qt4_add_translation(QM_FILES ${TRANSLATION_FILES})
 
+if(WITH_EMBED_RESOURCES)
+    # Create translations QRC file - translations.qrc
+    set(trans_file translations)
+    set(trans_infile ${CMAKE_CURRENT_BINARY_DIR}/${trans_file}.qrc)
+    set(trans_outfile ${CMAKE_CURRENT_BINARY_DIR}/qrc_${trans_file}.cxx)
+
+    ADD_CUSTOM_COMMAND(
+        OUTPUT ${trans_outfile}
+        COMMAND ${QT_RCC_EXECUTABLE}
+        ARGS ${rcc_options} -name ${trans_file} -o ${trans_outfile} ${trans_infile}
+        MAIN_DEPENDENCY ${trans_infile}
+        DEPENDS ${QM_FILES}
+    )
+    file(WRITE ${trans_infile} "<RCC>\n\t<qresource prefix=\"/translations\">")
+    foreach(QM_FILE ${QM_FILES})
+        get_filename_component(QM_FILE_NAME ${QM_FILE} NAME)
+        file(APPEND ${trans_infile} "\n\t\t<file>${QM_FILE_NAME}</file>")
+    endforeach()
+    file(APPEND ${trans_infile} "\n\t</qresource>\n</RCC>")
+    add_custom_target(translations DEPENDS ${trans_outfile})
+else()
+    add_custom_target(translations DEPENDS ${QM_FILES})
+endif(WITH_EMBED_RESOURCES)
+
 install(FILES ${QM_FILES} DESTINATION ${DATA_INSTALL_DIR}/translations)
-add_custom_target(translations DEPENDS ${QM_FILES})
 add_dependencies(${PROGNAME} translations)

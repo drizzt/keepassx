@@ -185,6 +185,9 @@ FilePath::FilePath()
     bool isDataDirAbsolute = QDir::isAbsolutePath(KEEPASSX_DATA_DIR);
     Q_UNUSED(isDataDirAbsolute);
 
+#ifdef EMBED_RESOURCES
+    m_dataPath = ":";
+#else
     if (false) {
     }
 #ifdef QT_DEBUG
@@ -214,6 +217,7 @@ FilePath::FilePath()
     else {
         m_dataPath = QDir::cleanPath(m_dataPath);
     }
+#endif
 }
 
 bool FilePath::testSetDir(const QString& dir)

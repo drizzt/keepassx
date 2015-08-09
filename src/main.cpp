@@ -29,6 +29,10 @@
 
 int main(int argc, char** argv)
 {
+#ifdef EMBED_RESOURCES
+    Q_INIT_RESOURCE(keepassx);
+    Q_INIT_RESOURCE(translations);
+#endif
 #ifdef QT_NO_DEBUG
     Tools::disableCoreDumps();
 #endif
